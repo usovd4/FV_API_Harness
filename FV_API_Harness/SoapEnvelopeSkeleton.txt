@@ -1,0 +1,9 @@
+﻿<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<soap:Body>
+        <{0} xmlns="https://localhost.priority1.uk.net/Priority1WebServices/{1}">
+				
+		{2}
+
+        </{0}>
+  </soap:Body>
+</soap:Envelope>
