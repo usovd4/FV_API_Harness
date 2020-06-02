@@ -5,7 +5,9 @@ VisualStudioVersion = 15.0.28307.757
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FV_API_Harness", "FV_API_Harness\FV_API_Harness.csproj", "{A1F9C931-1FB7-4094-9B85-B3F272329119}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FV_API_Harness_Tester", "FV_API_Harness_Tester\FV_API_Harness_Tester.csproj", "{7C74D2C5-3071-4625-B93B-DED2E4B8670F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FV_API_Harness_Console", "FV_API_Harness_Tester\FV_API_Harness_Console.csproj", "{7C74D2C5-3071-4625-B93B-DED2E4B8670F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BulkInserts", "BulkInsert\BulkInserts.csproj", "{7FB5A142-F000-4CFA-9114-1FC9469079BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{7C74D2C5-3071-4625-B93B-DED2E4B8670F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C74D2C5-3071-4625-B93B-DED2E4B8670F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C74D2C5-3071-4625-B93B-DED2E4B8670F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FB5A142-F000-4CFA-9114-1FC9469079BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FB5A142-F000-4CFA-9114-1FC9469079BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FB5A142-F000-4CFA-9114-1FC9469079BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FB5A142-F000-4CFA-9114-1FC9469079BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

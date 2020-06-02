@@ -5,18 +5,19 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A1F9C931-1FB7-4094-9B85-B3F272329119}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FV_API_Harness</RootNamespace>
-    <AssemblyName>FV_API_Harness</AssemblyName>
+    <ProjectGuid>{7C74D2C5-3071-4625-B93B-DED2E4B8670F}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>FV_API_Harness_Console</RootNamespace>
+    <AssemblyName>FV_API_Harness_Console</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -26,12 +27,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>
+    </StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -43,6 +49,9 @@
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="LORLib.Core">
+      <HintPath>\\darfp01\d-it\ConstructionSystemsTeam\Tools\Shared Components\LORLib.Core\Release\LORLib.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -50,13 +59,9 @@
       <HintPath>..\packages\RestSharp.106.11.4\lib\net452\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ComponentModel.Annotations.4.7.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
-    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Security" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -66,80 +71,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FV_API_Call.cs" />
-    <Compile Include="FV_API_Token.cs" />
-    <Compile Include="FV_API_TokenPool.cs" />
-    <Compile Include="FV_Call_Param.cs" />
-    <Compile Include="GeometryTierInformation.cs" />
-    <Compile Include="Model\APIToken.cs">
-      <DependentUpon>ccModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ccBusinessUnit.cs">
-      <DependentUpon>ccModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ccModel.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ccModel.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ccModel.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ccModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ccModel.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ccModel.edmx</DependentUpon>
-    </Compile>
-    <Compile Include="Model\ccProject.cs">
-      <DependentUpon>ccModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="ProjectFormsListInformation.cs" />
-    <Compile Include="ProjectFormsListUpdatedInformation.cs" />
-    <Compile Include="ProjectInformation.cs" />
+    <Compile Include="bizEmail.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Response.cs" />
-    <Compile Include="Status.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Model\ccModel.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>ccModel.edmx</DependentUpon>
-      <LastGenOutput>ccModel.Context.cs</LastGenOutput>
-    </Content>
-    <Content Include="Model\ccModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>ccModel.edmx</DependentUpon>
-      <LastGenOutput>ccModel.cs</LastGenOutput>
-    </Content>
-    <Content Include="SoapEnvelopeSkeleton.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <EntityDeploy Include="Model\ccModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>ccModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <None Include="Model\ccModel.edmx.diagram">
-      <DependentUpon>ccModel.edmx</DependentUpon>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+    <ProjectReference Include="..\BulkInsert\BulkInserts.csproj">
+      <Project>{7FB5A142-F000-4CFA-9114-1FC9469079BA}</Project>
+      <Name>BulkInserts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FV_API_Harness\FV_API_Harness.csproj">
+      <Project>{a1f9c931-1fb7-4094-9b85-b3f272329119}</Project>
+      <Name>FV_API_Harness</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

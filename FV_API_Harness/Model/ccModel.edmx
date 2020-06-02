@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="CustomerCare_PreProdModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="APIToken">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="APIToken" Type="varchar(max)" />
+          <Property Name="ExpiredDate" Type="datetime" />
+        </EntityType>
+        <EntityType Name="ccBusinessUnit">
+          <Key>
+            <PropertyRef Name="buID" />
+          </Key>
+          <Property Name="buID" Type="int" Nullable="false" />
+          <Property Name="buName" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="buEmail" Type="varchar" MaxLength="250" Nullable="false" />
+          <Property Name="buPhone" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="buActive" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ccProject">
+          <Key>
+            <PropertyRef Name="projectID" />
+          </Key>
+          <Property Name="projectID" Type="int" Nullable="false" />
+          <Property Name="projectName" Type="varchar" MaxLength="500" Nullable="false" />
+          <Property Name="contractCode" Type="varchar" MaxLength="50" />
+          <Property Name="wbsCode" Type="varchar" MaxLength="50" />
+          <Property Name="buID" Type="int" />
+          <Property Name="clientID" Type="int" />
+          <Property Name="sectorID" Type="int" />
+          <Property Name="contractTypeID" Type="int" />
+          <Property Name="projectleader" Type="varchar" MaxLength="100" />
+          <Property Name="lastUploaded" Type="smalldatetime" />
+          <Property Name="ccManager" Type="int" />
+          <Property Name="priority" Type="int" />
+          <Property Name="IsActive" Type="int" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_ccProject_ccBusinessUnit">
+          <End Role="ccBusinessUnit" Type="Self.ccBusinessUnit" Multiplicity="0..1" />
+          <End Role="ccProject" Type="Self.ccProject" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ccBusinessUnit">
+              <PropertyRef Name="buID" />
+            </Principal>
+            <Dependent Role="ccProject">
+              <PropertyRef Name="buID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="CustomerCare_PreProdModelStoreContainer">
+          <EntitySet Name="APIToken" EntityType="Self.APIToken" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ccBusinessUnit" EntityType="Self.ccBusinessUnit" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ccProject" EntityType="Self.ccProject" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_ccProject_ccBusinessUnit" Association="Self.FK_ccProject_ccBusinessUnit">
+            <End Role="ccBusinessUnit" EntitySet="ccBusinessUnit" />
+            <End Role="ccProject" EntitySet="ccProject" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="CustomerCare_PreProdModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="ccBusinessUnit">
+          <Key>
+            <PropertyRef Name="buID" />
+          </Key>
+          <Property Name="buID" Type="Int32" Nullable="false" />
+          <Property Name="buName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="buEmail" Type="String" MaxLength="250" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="buPhone" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="buActive" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="ccProject" Relationship="Self.FK_ccProject_ccBusinessUnit" FromRole="ccBusinessUnit" ToRole="ccProject" />
+        </EntityType>
+        <EntityType Name="ccProject">
+          <Key>
+            <PropertyRef Name="projectID" />
+          </Key>
+          <Property Name="projectID" Type="Int32" Nullable="false" />
+          <Property Name="projectName" Type="String" MaxLength="500" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="contractCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="wbsCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="buID" Type="Int32" />
+          <Property Name="clientID" Type="Int32" />
+          <Property Name="sectorID" Type="Int32" />
+          <Property Name="contractTypeID" Type="Int32" />
+          <Property Name="projectleader" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="lastUploaded" Type="DateTime" Precision="0" />
+          <Property Name="ccManager" Type="Int32" />
+          <Property Name="priority" Type="Int32" />
+          <Property Name="IsActive" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="ccBusinessUnit" Relationship="Self.FK_ccProject_ccBusinessUnit" FromRole="ccProject" ToRole="ccBusinessUnit" />
+        </EntityType>
+        <Association Name="FK_ccProject_ccBusinessUnit">
+          <End Role="ccBusinessUnit" Type="Self.ccBusinessUnit" Multiplicity="0..1" />
+          <End Role="ccProject" Type="Self.ccProject" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ccBusinessUnit">
+              <PropertyRef Name="buID" />
+            </Principal>
+            <Dependent Role="ccProject">
+              <PropertyRef Name="buID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="AppEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ccBusinessUnit" EntityType="Self.ccBusinessUnit" />
+          <EntitySet Name="ccProject" EntityType="Self.ccProject" />
+          <AssociationSet Name="FK_ccProject_ccBusinessUnit" Association="Self.FK_ccProject_ccBusinessUnit">
+            <End Role="ccBusinessUnit" EntitySet="ccBusinessUnit" />
+            <End Role="ccProject" EntitySet="ccProject" />
+          </AssociationSet>
+          <EntitySet Name="APIToken" EntityType="CustomerCare_PreProdModel.APIToken" />
+        </EntityContainer>
+        <EntityType Name="APIToken">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="APIToken1" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="ExpiredDate" Type="DateTime" Precision="3" />
+        </EntityType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="CustomerCare_PreProdModelStoreContainer" CdmEntityContainer="AppEntities">
+          <EntitySetMapping Name="ccBusinessUnit">
+            <EntityTypeMapping TypeName="CustomerCare_PreProdModel.ccBusinessUnit">
+              <MappingFragment StoreEntitySet="ccBusinessUnit">
+                <ScalarProperty Name="buID" ColumnName="buID" />
+                <ScalarProperty Name="buName" ColumnName="buName" />
+                <ScalarProperty Name="buEmail" ColumnName="buEmail" />
+                <ScalarProperty Name="buPhone" ColumnName="buPhone" />
+                <ScalarProperty Name="buActive" ColumnName="buActive" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ccProject">
+            <EntityTypeMapping TypeName="CustomerCare_PreProdModel.ccProject">
+              <MappingFragment StoreEntitySet="ccProject">
+                <ScalarProperty Name="projectID" ColumnName="projectID" />
+                <ScalarProperty Name="projectName" ColumnName="projectName" />
+                <ScalarProperty Name="contractCode" ColumnName="contractCode" />
+                <ScalarProperty Name="wbsCode" ColumnName="wbsCode" />
+                <ScalarProperty Name="buID" ColumnName="buID" />
+                <ScalarProperty Name="clientID" ColumnName="clientID" />
+                <ScalarProperty Name="sectorID" ColumnName="sectorID" />
+                <ScalarProperty Name="contractTypeID" ColumnName="contractTypeID" />
+                <ScalarProperty Name="projectleader" ColumnName="projectleader" />
+                <ScalarProperty Name="lastUploaded" ColumnName="lastUploaded" />
+                <ScalarProperty Name="ccManager" ColumnName="ccManager" />
+                <ScalarProperty Name="priority" ColumnName="priority" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="APIToken">
+            <EntityTypeMapping TypeName="CustomerCare_PreProdModel.APIToken">
+              <MappingFragment StoreEntitySet="APIToken">
+                <ScalarProperty Name="ExpiredDate" ColumnName="ExpiredDate" />
+                <ScalarProperty Name="APIToken1" ColumnName="APIToken" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

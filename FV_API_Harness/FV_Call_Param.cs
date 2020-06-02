@@ -43,7 +43,7 @@ namespace FV_API_Harness
         /// <returns></returns>
         public string GetParamString()
         {
-            
+
             if (ParamVals == null)
             {
                 return $"<{ParamName}>{ParamVal}</{ParamName}>";

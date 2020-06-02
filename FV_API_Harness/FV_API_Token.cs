@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace FV_API_Harness
 {
-    class FV_API_Token
+    public class FV_API_Token
     {
         /// <summary>
         /// The string data of the token
         /// </summary>
-        string TokenString { get; }
+        public string TokenString { get; }
         /// <summary>
         /// The time at which the token last expired.
         /// </summary>
