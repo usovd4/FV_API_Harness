@@ -2,6 +2,7 @@
 using LORLib.Core;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net.Mail;
@@ -27,7 +28,7 @@ namespace FV_API_Harness_Tester
             {
                 System.Net.Mail.MailMessage emailMsg = new System.Net.Mail.MailMessage();
 
-                string sendEmailMode = Utils.SystemAppSettings("SendEmailMode").ToLower();
+                string sendEmailMode = ConfigurationManager.AppSettings["SendEmailMode"].ToString().ToLower();
 
 
                 if (sendEmailMode != "none")
@@ -52,7 +53,7 @@ namespace FV_API_Harness_Tester
                     }
                     else if (sendEmailMode == "test")
                     {
-                        String[] emailAddresses = Utils.SystemAppSettings("TestEmail").Split(';');
+                        String[] emailAddresses = ConfigurationManager.AppSettings["TestEmail"].ToString().Split(';');
                         for (int i = emailAddresses.GetLowerBound(0); i <= emailAddresses.GetUpperBound(0); i++)
                         {
                             if (emailAddresses[i].Trim() != "")
@@ -88,7 +89,7 @@ namespace FV_API_Harness_Tester
                         message = message.Replace(sImg, "src=\"cid:" + contentID + "\"");
                     }
 
-                    string FromEmail = senderEmail == null ? Utils.SystemAppSettings("ApplicationEmail") : "Customer Care System On behalf of <" + senderEmail + ">";
+                    string FromEmail = senderEmail == null ? ConfigurationManager.AppSettings["ApplicationEmail"].ToString() : "Customer Care System On behalf of <" + senderEmail + ">";
                     // emailMsg.From = new System.Net.Mail.MailAddress(Utils.SystemAppSettings("ApplicationEmail"));
                     emailMsg.From = new System.Net.Mail.MailAddress(FromEmail);
                     emailMsg.Subject = subject;
@@ -121,7 +122,7 @@ namespace FV_API_Harness_Tester
                         }
                     }
 
-                    sendEmail(emailMsg, true);
+                    sendEmail(emailMsg, false);
 
                     retVal = true;
                 }
@@ -141,7 +142,7 @@ namespace FV_API_Harness_Tester
         private static void sendEmail(System.Net.Mail.MailMessage m, Boolean Async)
         {
             System.Net.Mail.SmtpClient smtpClient = null;
-            smtpClient = new System.Net.Mail.SmtpClient(Utils.SystemAppSettings("Application_SMTPServer"));
+            smtpClient = new System.Net.Mail.SmtpClient(ConfigurationManager.AppSettings["Application_SMTPServer"]);
             if (Async)
             {
                 SendEmailDelegate sd = new SendEmailDelegate(smtpClient.Send);
@@ -150,6 +151,7 @@ namespace FV_API_Harness_Tester
             }
             else
             {
+                log.Debug("Sending the email non-async mode");
                 smtpClient.Send(m);
             }
         }

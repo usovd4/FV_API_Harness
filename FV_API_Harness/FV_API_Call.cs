@@ -11,6 +11,7 @@ using RestSharp;
 using System.Xml;
 using Newtonsoft.Json;
 using System.Collections;
+using System.Configuration;
 
 namespace FV_API_Harness
 {
@@ -89,8 +90,9 @@ namespace FV_API_Harness
 
         public Response GetFVReponse(RestClient client)
         {
-
-            string callURI = $"https://www.priority1.uk.net/FieldViewWebServices/WebServices/{FVReturnType}/{ConvertServiceToString(FVWebService)}";
+            string fv_url_basepath = ConfigurationManager.AppSettings["FV_API_URL"];
+            string soap_action_url = ConfigurationManager.AppSettings["SOAP_ACTION_URL"];
+            string callURI = $"{fv_url_basepath}{FVReturnType}/{ConvertServiceToString(FVWebService)}";
 
             //var client = new RestClient(callURI);
             client.BaseUrl = new Uri(callURI);
@@ -102,7 +104,7 @@ namespace FV_API_Harness
             // Json to post.
             string postBody = SoapEnvelope();
             request.AddHeader("Content-Type", "text/xml; charset=utf-8");
-            request.AddHeader("SOAPAction", $"https://localhost.priority1.uk.net/Priority1WebServices/{FVReturnType}/{FunctionName}");
+            request.AddHeader("SOAPAction", $"{soap_action_url}{FVReturnType}/{FunctionName}");
             request.AddParameter("text/xml", postBody, "text/xml", ParameterType.RequestBody);
             request.AddXmlBody(postBody);
 

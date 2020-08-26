@@ -29,7 +29,9 @@ namespace FV_API_Harness_Tester
                     if (retVal != "")
                     {
                         string[] apiReturn = retVal.Split('|');
+                        log.Debug("Sending email with the message " + apiReturn[0]);
                         bizEmail.SendEmailTo("FV API failure", apiReturn[0], apiReturn[1], "", null, null, ConfigurationManager.AppSettings["FvApiEmail"]);
+                        log.Debug("Email sent");
                     }
                 }
                 catch(Exception e)
@@ -152,7 +154,7 @@ namespace FV_API_Harness_Tester
                     List<int> priorityPiD = existingProjects.Where(x => x.priority == 1).Select(x => x.projectID).ToList();
                     PF_PI = PF_PI.Where(x => priorityPiD.Contains(x.ID)).ToList();
                 }
-
+                
                 foreach (ProjectInformation p in PF_PI)
                 {
                     p.UploadDate = existingProjects.Where(x => x.projectID == p.ID).Select(x => x.lastUploaded).FirstOrDefault();
@@ -162,7 +164,7 @@ namespace FV_API_Harness_Tester
                     log.Debug("Parent geometry...");
                     List<FV_Call_Param> GeoP_Call_Params = new List<FV_Call_Param>();
                     GeoP_Call_Params.Add(new FV_Call_Param("apiToken", tokenPool.GetFreshToken().TokenString));
-                    GeoP_Call_Params.Add(new FV_Call_Param("parentID", "0"));
+                    //GeoP_Call_Params.Add(new FV_Call_Param("parentID", "0"));
                     GeoP_Call_Params.Add(new FV_Call_Param("projectID", p.ID.ToString()));
                     GeoP_Call_Params.Add(new FV_Call_Param("activeOnly", "true"));
 
@@ -175,6 +177,14 @@ namespace FV_API_Harness_Tester
                     {
                         jsonResponseObject = GeoP_CallParams.GetFVReponse(client);
                         geo_forms = jsonResponseObject.GeometryTierInformation;
+                        foreach (GeometryTierInformation g in geo_forms)
+                        {
+                            g.ProjectID = p.ID;
+                        }
+
+                        PF_Geo.AddRange(geo_forms);
+                        log.Debug("Added " + geo_forms.Count + " to PF_Geo list. Total PF_Geo count is " + PF_Geo.Count);
+                        log.Debug("STATUS CODE " + jsonResponseObject.Status.Code + ", THE MESSAGE IS " + jsonResponseObject.Status.Message);
                     }
                     catch (Exception e)
                     {
@@ -184,52 +194,55 @@ namespace FV_API_Harness_Tester
                             failedBuEmails.Add(failedBuEmail);
                         }
                         dataTransferSuccessful = false;
-                        log.Debug("Exception during API call GetGeometryTier(Parent): " + e);
-                        retVal += "Project: " + p.Name + Environment.NewLine + Environment.NewLine + "Error: Failed to retrieve Parent Geometry Data for Project " + p.Name + ".The exception was: " + e + Environment.NewLine + Environment.NewLine + "Application name: Customer Care" + Environment.NewLine;
+                        log.Debug("Exception during API call GetGeometryTier: " + e);
+                        retVal += "Project: " + p.Name + Environment.NewLine + Environment.NewLine + "Error: Failed to retrieve Geometry Data for Project " + p.Name + ".The exception was: " + e + Environment.NewLine + Environment.NewLine + "Application name: Customer Care" + Environment.NewLine;
                     }
 
                     //If parent geometry returned a result perform the call again to get the child geometry
-                    if (geo_forms.Count > 0)
-                    {
-                        log.Debug("Child geometry...");
-                        List<FV_Call_Param> GeoC_Call_Params = new List<FV_Call_Param>();
-                        GeoC_Call_Params.Add(new FV_Call_Param("apiToken", tokenPool.GetFreshToken().TokenString));
-                        GeoC_Call_Params.Add(new FV_Call_Param("parentID", geo_forms[0].ID.ToString()));
-                        GeoC_Call_Params.Add(new FV_Call_Param("projectID", p.ID.ToString()));
-                        GeoC_Call_Params.Add(new FV_Call_Param("activeOnly", "true"));
+                    //-------------------------
+                    //OBSOLETE AFTER API CHANGE
+                    //-------------------------
+                    //if (geo_forms.Count > 0)
+                    //{
+                    //    log.Debug("Child geometry...");
+                    //    List<FV_Call_Param> GeoC_Call_Params = new List<FV_Call_Param>();
+                    //    GeoC_Call_Params.Add(new FV_Call_Param("apiToken", tokenPool.GetFreshToken().TokenString));
+                    //    GeoC_Call_Params.Add(new FV_Call_Param("parentID", geo_forms[0].ID.ToString()));
+                    //    GeoC_Call_Params.Add(new FV_Call_Param("projectID", p.ID.ToString()));
+                    //    GeoC_Call_Params.Add(new FV_Call_Param("activeOnly", "true"));
 
-                        callFunctionName = "GetGeometryTier";
-                        geo_forms = new List<GeometryTierInformation>();
+                    //    callFunctionName = "GetGeometryTier";
+                    //    geo_forms = new List<GeometryTierInformation>();
 
-                        FV_API_Call GeoC_CallParams = new FV_API_Call(FvReturnType.JSON, FVWebService.CONFIGURATION, callFunctionName, GeoC_Call_Params, tokenPool);
+                    //    FV_API_Call GeoC_CallParams = new FV_API_Call(FvReturnType.JSON, FVWebService.CONFIGURATION, callFunctionName, GeoC_Call_Params, tokenPool);
 
-                        try
-                        {
-                            jsonResponseObject = GeoC_CallParams.GetFVReponse(client);
-                            geo_forms = jsonResponseObject.GeometryTierInformation;
-                            foreach (GeometryTierInformation g in geo_forms)
-                            {
-                                g.ProjectID = p.ID;
-                            }
+                    //    try
+                    //    {
+                    //        jsonResponseObject = GeoC_CallParams.GetFVReponse(client);
+                    //        geo_forms = jsonResponseObject.GeometryTierInformation;
+                    //        foreach (GeometryTierInformation g in geo_forms)
+                    //        {
+                    //            g.ProjectID = p.ID;
+                    //        }
 
-                            PF_Geo.AddRange(geo_forms);
-                            log.Debug("Added " + geo_forms.Count + " to PF_Geo list. Total PF_Geo count is " + PF_Geo.Count);
-                            log.Debug("STATUS CODE " + jsonResponseObject.Status.Code + ", THE MESSAGE IS " + jsonResponseObject.Status.Message);
-                        }
-                        catch (Exception e)
-                        {
-                            failedBuEmail = BUlist.Where(x => x.buID == p.BU_ID).Select(x => x.buEmail).First();
-                            if (!failedBuEmails.Contains(failedBuEmail))
-                            {
-                                failedBuEmails.Add(failedBuEmail);
-                            }
-                            dataTransferSuccessful = false;
-                            log.Debug("Exception during API call GetGeometryTier(Child): " + e);
-                            retVal += "Project: " + p.Name + Environment.NewLine + Environment.NewLine + "Error: Failed to retrieve Child Geometry Data for Project " + p.Name + ".The exception was: " + e + Environment.NewLine + Environment.NewLine + "Application name: Customer Care" + Environment.NewLine;
+                    //        PF_Geo.AddRange(geo_forms);
+                    //        log.Debug("Added " + geo_forms.Count + " to PF_Geo list. Total PF_Geo count is " + PF_Geo.Count);
+                    //        log.Debug("STATUS CODE " + jsonResponseObject.Status.Code + ", THE MESSAGE IS " + jsonResponseObject.Status.Message);
+                    //    }
+                    //    catch (Exception e)
+                    //    {
+                    //        failedBuEmail = BUlist.Where(x => x.buID == p.BU_ID).Select(x => x.buEmail).First();
+                    //        if (!failedBuEmails.Contains(failedBuEmail))
+                    //        {
+                    //            failedBuEmails.Add(failedBuEmail);
+                    //        }
+                    //        dataTransferSuccessful = false;
+                    //        log.Debug("Exception during API call GetGeometryTier(Child): " + e);
+                    //        retVal += "Project: " + p.Name + Environment.NewLine + Environment.NewLine + "Error: Failed to retrieve Child Geometry Data for Project " + p.Name + ".The exception was: " + e + Environment.NewLine + Environment.NewLine + "Application name: Customer Care" + Environment.NewLine;
 
-                        }
+                    //    }
 
-                    }
+                    //}
 
                     log.Debug("Project Forms List...");
                     List<FV_Call_Param> PF_CallParams = new List<FV_Call_Param>();
