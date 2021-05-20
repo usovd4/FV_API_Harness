@@ -65,6 +65,7 @@ namespace FV_API_Harness_Tester
             List<string> tokenStringDB = new List<string>();
             FV_API_TokenPool tokenPool = new FV_API_TokenPool();
             List<ccBusinessUnit> BUlist = new List<ccBusinessUnit>();
+            List<string> formTemplateLinkIdsContainer = new List<string> { "3878666", "10534647" };
 
             List<string> failedBuEmails = new List<string>();
             string failedBuEmail;
@@ -78,11 +79,12 @@ namespace FV_API_Harness_Tester
 
             using (AppEntities appDB = new AppEntities())
             {
-
+                log.Debug("Getting a list of existing projects from db");
                 existingProjects = (from t in appDB.ccProject
                                     select t).ToList();
 
                 //Setting up the token pool
+                log.Debug("Getting a list of tokens from db");
                 tokenStringDB = (from t in appDB.APIToken
                                  select t.APIToken1).ToList();
                 foreach (string ts in tokenStringDB)
@@ -93,12 +95,18 @@ namespace FV_API_Harness_Tester
                 tokenPool = new FV_API_TokenPool(tokenList);
 
                 //Clearing the staging tables
-                appDB.Database.ExecuteSqlCommand("DELETE from STG_GetProjects");
-                appDB.Database.ExecuteSqlCommand("DELETE from STG_GetGeometryTier");
-                appDB.Database.ExecuteSqlCommand("DELETE from STG_GetProjectFormsList");
-                appDB.Database.ExecuteSqlCommand("DELETE from STG_GetProjectListUpdated");
+                log.Debug("Clearing the staging tables");
+                log.Debug("Truncating STG_GetProjects");
+                appDB.Database.ExecuteSqlCommand("TRUNCATE TABLE STG_GetProjects");
+                log.Debug("Truncating STG_GetGeometryTier");
+                appDB.Database.ExecuteSqlCommand("TRUNCATE TABLE STG_GetGeometryTier");
+                log.Debug("Truncating STG_GetProjectsFormsList");
+                appDB.Database.ExecuteSqlCommand("TRUNCATE TABLE STG_GetProjectFormsList");
+                log.Debug("Truncating STG_GetProjectListUpdated");
+                appDB.Database.ExecuteSqlCommand("TRUNCATE TABLE STG_GetProjectListUpdated");
 
                 //Getting Business Unit IDs from the db
+                log.Debug("Getting Business Unit IDs from the db");
                 BUlist = (from t in appDB.ccBusinessUnit
                           where t.buActive == 1
                           select t
@@ -243,95 +251,9 @@ namespace FV_API_Harness_Tester
                     //    }
 
                     //}
-
-                    log.Debug("Project Forms List...");
-                    List<FV_Call_Param> PF_CallParams = new List<FV_Call_Param>();
-                    PF_CallParams.Add(new FV_Call_Param("apiToken", tokenPool.GetFreshToken().TokenString));
-                    PF_CallParams.Add(new FV_Call_Param("projectId", p.ID.ToString()));
-                    List<string> formTemplateLinkIds = new List<string>();
-                    formTemplateLinkIds.Add("3878666");
-                    PF_CallParams.Add(new FV_Call_Param("formTemplateLinkIds", FV_Param_Type.@int, formTemplateLinkIds));
-
-                    PF_CallParams.Add(new FV_Call_Param("lastmodifiedDateFrom", dayStringFrom));
-                    PF_CallParams.Add(new FV_Call_Param("lastmodifiedDateTo", dayStringTo));
-
-                    callFunctionName = "GetProjectFormsList";
-                    List<ProjectFormsListInformation> forms = new List<ProjectFormsListInformation>();
-
-                    log.Debug("Creating FV API CALL object with parameters");
-                    FV_API_Call fV_API_Call_PF = new FV_API_Call(FvReturnType.JSON, FVWebService.FORM, callFunctionName, PF_CallParams, tokenPool);
-                    log.Debug("FV API CALL object created successfully");
-
-                    try
-                    {
-                        log.Debug("Attempting to get JSON for Project Forms List call");
-                        jsonResponseObject = fV_API_Call_PF.GetFVReponse(client);
-                        forms = jsonResponseObject.ProjectFormsListInformation;
-                        foreach (ProjectFormsListInformation pi in forms)
-                        {
-                            pi.ProjectID = p.ID;
-                        }
-                        PF_LI.AddRange(forms);
-                        log.Debug("Added " + forms.Count + " to PF_LI list. Total PF_LI count is " + PF_LI.Count);
-                        log.Debug("STATUS CODE " + jsonResponseObject.Status.Code + ", THE MESSAGE IS " + jsonResponseObject.Status.Message);
-                    }
-                    catch (Exception e)
-                    {
-                        failedBuEmail = BUlist.Where(x => x.buID == p.BU_ID).Select(x => x.buEmail).First();
-                        if (!failedBuEmails.Contains(failedBuEmail))
-                        {
-                            failedBuEmails.Add(failedBuEmail);
-                        }
-                        dataTransferSuccessful = false;
-                        log.Debug("Exception during API call GetProjectFormsList: " + e);
-                        retVal += "Project: " + p.Name + Environment.NewLine + Environment.NewLine + "Error: Failed to retrieve Project Forms List for Project " + p.Name + ".The exception was: " + e + Environment.NewLine + Environment.NewLine + "Application name: Customer Care" + Environment.NewLine;
-
-                    }
-
-                    log.Debug("Project Forms List Updated...");
-
-                    List<FV_Call_Param> CallParams = new List<FV_Call_Param>();
-                    CallParams.Add(new FV_Call_Param("apiToken", tokenPool.GetFreshToken().TokenString));
-                    CallParams.Add(new FV_Call_Param("projectId", p.ID.ToString()));
-                    formTemplateLinkIds = new List<string>();
-                    formTemplateLinkIds.Add("3878666");
-                    CallParams.Add(new FV_Call_Param("formTemplateLinkIds", FV_Param_Type.@int, formTemplateLinkIds));
-
-                    CallParams.Add(new FV_Call_Param("lastmodifiedDateFrom", dayStringFrom/*"2019-11-01T23:59:59"*/));
-                    CallParams.Add(new FV_Call_Param("lastmodifiedDateTo", dayStringTo/*"2020-01-19T23:59:59"*/));
-
-                    callFunctionName = "GetProjectFormsListUpdated";
-                    List<ProjectFormsListUpdatedInformation> forms_upd = new List<ProjectFormsListUpdatedInformation>();
-
-                    FV_API_Call fV_API_Call = new FV_API_Call(FvReturnType.JSON, FVWebService.FORM, "GetProjectFormsListUpdated", CallParams, tokenPool);
-
-                    try
-                    {
-                        jsonResponseObject = fV_API_Call.GetFVReponse(client);
-                        forms_upd = jsonResponseObject.ProjectFormsListUpdatedInformation;
-                        PF_LUI.AddRange(forms_upd);
-                        log.Debug("Added " + forms_upd.Count + " to PF_LUI list. Total PF_LUI count is " + PF_LUI.Count);
-                        log.Debug("STATUS CODE " + jsonResponseObject.Status.Code + ", THE MESSAGE IS " + jsonResponseObject.Status.Message);
-                    }
-                    catch (Exception e)
-                    {
-                        failedBuEmail = BUlist.Where(x => x.buID == p.BU_ID).Select(x => x.buEmail).First();
-                        if (!failedBuEmails.Contains(failedBuEmail))
-                        {
-                            failedBuEmails.Add(failedBuEmail);
-                        }
-                        dataTransferSuccessful = false;
-                        log.Debug("Exception during API call GetProjectFormsListUpdated: " + e);
-                        retVal += "Project: " + p.Name + Environment.NewLine + Environment.NewLine + "Error: Failed to retrieve Project Forms List Updated for Project " + p.Name + ".The exception was: " + e + Environment.NewLine + Environment.NewLine + "Application name: Customer Care" + Environment.NewLine;
-                    }
-
-
-
                     try
                     {
                         bk.Commit(geo_forms);
-                        bk.Commit(forms);
-                        bk.Commit(forms_upd);
                     }
                     catch (Exception e)
                     {
@@ -344,9 +266,121 @@ namespace FV_API_Harness_Tester
                         retVal += "Project: " + p.Name + Environment.NewLine + Environment.NewLine + "Error: Failed to upload API provided data to the database for project " + p.Name + ".The exception was: " + e + Environment.NewLine + Environment.NewLine + "Application name: Customer Care" + Environment.NewLine;
 
                     }
-                    if (dataTransferSuccessful)
-                        p.UploadDate = DateTime.Now;
 
+                    foreach (string fTLid in formTemplateLinkIdsContainer)
+                    {
+                        if(p.ID == 6880)
+                        {
+                            if(fTLid == "10534647")
+                            {
+
+                            }
+
+                        }
+
+                        log.Debug("Project Forms List...");
+                        List<FV_Call_Param> PF_CallParams = new List<FV_Call_Param>();
+                        PF_CallParams.Add(new FV_Call_Param("apiToken", tokenPool.GetFreshToken().TokenString));
+                        PF_CallParams.Add(new FV_Call_Param("projectId", p.ID.ToString()));
+                        List<string> formTemplateLinkIds = new List<string>();
+                        formTemplateLinkIds.Add(fTLid);
+                        //formTemplateLinkIds.Add("10534647");
+                        PF_CallParams.Add(new FV_Call_Param("formTemplateLinkIds", FV_Param_Type.@int, formTemplateLinkIds));
+
+                        PF_CallParams.Add(new FV_Call_Param("lastmodifiedDateFrom", dayStringFrom));
+                        PF_CallParams.Add(new FV_Call_Param("lastmodifiedDateTo", dayStringTo));
+
+                        callFunctionName = "GetProjectFormsList";
+                        List<ProjectFormsListInformation> forms = new List<ProjectFormsListInformation>();
+
+                        log.Debug("Creating FV API CALL object with parameters");
+                        FV_API_Call fV_API_Call_PF = new FV_API_Call(FvReturnType.JSON, FVWebService.FORM, callFunctionName, PF_CallParams, tokenPool);
+                        log.Debug("FV API CALL object created successfully");
+
+                        try
+                        {
+                            log.Debug("Attempting to get JSON for Project Forms List call");
+                            jsonResponseObject = fV_API_Call_PF.GetFVReponse(client);
+                            forms = jsonResponseObject.ProjectFormsListInformation;
+                            foreach (ProjectFormsListInformation pi in forms)
+                            {
+                                pi.ProjectID = p.ID;
+                            }
+                            PF_LI.AddRange(forms);
+                            log.Debug("Added " + forms.Count + " to PF_LI list. Total PF_LI count is " + PF_LI.Count);
+                            log.Debug("STATUS CODE " + jsonResponseObject.Status.Code + ", THE MESSAGE IS " + jsonResponseObject.Status.Message);
+                        }
+                        catch (Exception e)
+                        {
+                            failedBuEmail = BUlist.Where(x => x.buID == p.BU_ID).Select(x => x.buEmail).First();
+                            if (!failedBuEmails.Contains(failedBuEmail))
+                            {
+                                failedBuEmails.Add(failedBuEmail);
+                            }
+                            dataTransferSuccessful = false;
+                            log.Debug("Exception during API call GetProjectFormsList: " + e);
+                            retVal += "Project: " + p.Name + Environment.NewLine + Environment.NewLine + "Error: Failed to retrieve Project Forms List for Project " + p.Name + ".The exception was: " + e + Environment.NewLine + Environment.NewLine + "Application name: Customer Care" + Environment.NewLine;
+
+                        }
+
+                        log.Debug("Project Forms List Updated...");
+
+                        List<FV_Call_Param> CallParams = new List<FV_Call_Param>();
+                        CallParams.Add(new FV_Call_Param("apiToken", tokenPool.GetFreshToken().TokenString));
+                        CallParams.Add(new FV_Call_Param("projectId", p.ID.ToString()));
+                        formTemplateLinkIds = new List<string>();
+                        formTemplateLinkIds.Add(fTLid);
+                        CallParams.Add(new FV_Call_Param("formTemplateLinkIds", FV_Param_Type.@int, formTemplateLinkIds));
+
+                        CallParams.Add(new FV_Call_Param("lastmodifiedDateFrom", dayStringFrom/*"2019-11-01T23:59:59"*/));
+                        CallParams.Add(new FV_Call_Param("lastmodifiedDateTo", dayStringTo/*"2020-01-19T23:59:59"*/));
+
+                        callFunctionName = "GetProjectFormsListUpdated";
+                        List<ProjectFormsListUpdatedInformation> forms_upd = new List<ProjectFormsListUpdatedInformation>();
+
+                        FV_API_Call fV_API_Call = new FV_API_Call(FvReturnType.JSON, FVWebService.FORM, "GetProjectFormsListUpdated", CallParams, tokenPool);
+
+                        try
+                        {
+                            jsonResponseObject = fV_API_Call.GetFVReponse(client);
+                            forms_upd = jsonResponseObject.ProjectFormsListUpdatedInformation;
+                            PF_LUI.AddRange(forms_upd);
+                            log.Debug("Added " + forms_upd.Count + " to PF_LUI list. Total PF_LUI count is " + PF_LUI.Count);
+                            log.Debug("STATUS CODE " + jsonResponseObject.Status.Code + ", THE MESSAGE IS " + jsonResponseObject.Status.Message);
+                        }
+                        catch (Exception e)
+                        {
+                            failedBuEmail = BUlist.Where(x => x.buID == p.BU_ID).Select(x => x.buEmail).First();
+                            if (!failedBuEmails.Contains(failedBuEmail))
+                            {
+                                failedBuEmails.Add(failedBuEmail);
+                            }
+                            dataTransferSuccessful = false;
+                            log.Debug("Exception during API call GetProjectFormsListUpdated: " + e);
+                            retVal += "Project: " + p.Name + Environment.NewLine + Environment.NewLine + "Error: Failed to retrieve Project Forms List Updated for Project " + p.Name + ".The exception was: " + e + Environment.NewLine + Environment.NewLine + "Application name: Customer Care" + Environment.NewLine;
+                        }
+
+
+
+                        try
+                        {
+                            bk.Commit(forms);
+                            bk.Commit(forms_upd);
+                        }
+                        catch (Exception e)
+                        {
+                            failedBuEmail = BUlist.Where(x => x.buID == p.BU_ID).Select(x => x.buEmail).First();
+                            if (!failedBuEmails.Contains(failedBuEmail))
+                            {
+                                failedBuEmails.Add(failedBuEmail);
+                            }
+                            dataTransferSuccessful = false;
+                            retVal += "Project: " + p.Name + Environment.NewLine + Environment.NewLine + "Error: Failed to upload API provided data to the database for project " + p.Name + ".The exception was: " + e + Environment.NewLine + Environment.NewLine + "Application name: Customer Care" + Environment.NewLine;
+
+                        }
+                        if (dataTransferSuccessful)
+                            p.UploadDate = DateTime.Now;
+                    }
                 }
 
                 try
@@ -373,6 +407,7 @@ namespace FV_API_Harness_Tester
             {
                 using (AppEntities appDB = new AppEntities())
                 {
+                    //appDB.Database.CommandTimeout = 600;
                     stpr_name = "prc_PopulateGetProjects";
                     appDB.Database.ExecuteSqlCommand("EXEC prc_PopulateGetProjects");
                     log.Debug("prc_PopulateGetProjects executed successfully");
@@ -396,9 +431,12 @@ namespace FV_API_Harness_Tester
                     stpr_name = "prc_UpdateInsertLocations";
                     appDB.Database.ExecuteSqlCommand("EXEC prc_UpdateInsertLocations");
                     log.Debug("prc_UpdateInsertLocations executed successfully");
+                }
 
+                using (AppEntities appDB = new AppEntities())
+                {
                     stpr_name = "prc_populateCCProjectListUpdated";
-                    appDB.Database.CommandTimeout = 600;
+                    appDB.Database.CommandTimeout = 180;
                     appDB.Database.ExecuteSqlCommand("EXEC prc_populateCCProjectListUpdated");
                     log.Debug("prc_populateCCProjectListUpdated executed successfully");
                 }
