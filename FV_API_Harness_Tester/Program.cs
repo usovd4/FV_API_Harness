@@ -269,14 +269,6 @@ namespace FV_API_Harness_Tester
 
                     foreach (string fTLid in formTemplateLinkIdsContainer)
                     {
-                        if(p.ID == 6880)
-                        {
-                            if(fTLid == "10534647")
-                            {
-
-                            }
-
-                        }
 
                         log.Debug("Project Forms List...");
                         List<FV_Call_Param> PF_CallParams = new List<FV_Call_Param>();
@@ -407,7 +399,8 @@ namespace FV_API_Harness_Tester
             {
                 using (AppEntities appDB = new AppEntities())
                 {
-                    //appDB.Database.CommandTimeout = 600;
+                    appDB.Database.CommandTimeout = 180;
+                    log.Debug("Current command set to "+ appDB.Database.CommandTimeout);
                     stpr_name = "prc_PopulateGetProjects";
                     appDB.Database.ExecuteSqlCommand("EXEC prc_PopulateGetProjects");
                     log.Debug("prc_PopulateGetProjects executed successfully");
